@@ -32,7 +32,7 @@ def deserialize(o, type_hint=None):
         return o
     elif isinstance(o, collections.abc.Sequence):
         return [deserialize(it, type_hint) for it in o]
-    elif isinstance(o, dict):
+    elif isinstance(o, dict) and type_hint is not None:
         spec = inspect.getfullargspec(type_hint.__init__)
         constructor_args = list(spec.args[1:])
         annotations = spec.annotations
@@ -41,6 +41,8 @@ def deserialize(o, type_hint=None):
             raise TypeError("Deserialization problem: dict keys (%s) doesn't match constructor argument names (%s)" % (dict_keys, constructor_args))
         result = type_hint(**{k: deserialize(v, annotations.get(k)) for k,v in o.items()})
         return result
+    elif isinstance(o, dict):
+        return {k: deserialize(v) for k,v in o.items()}
     else:
         raise TypeError("Can't deserialize type: %s" % type(o))
 

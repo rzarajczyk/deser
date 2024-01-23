@@ -51,8 +51,8 @@ def test_describe():
     assert describe(4.5) == '(float) 4.5'
     assert describe(v) == '(ClassOuter) {a: (int) 1,b: (str) km,c: (ClassInner) {x: (int) 2,y: (str) km}}'
     assert describe({'x': v}) == '{x: (ClassOuter) {a: (int) 1,b: (str) km,c: (ClassInner) {x: (int) 2,y: (str) km}}}'
-    assert describe([1, 'a',
-                     v]) == '[(int) 1,(str) a,(ClassOuter) {a: (int) 1,b: (str) km,c: (ClassInner) {x: (int) 2,y: (str) km}}]'
+    assert (describe([1, 'a', v]) ==
+            '[(int) 1,(str) a,(ClassOuter) {a: (int) 1,b: (str) km,c: (ClassInner) {x: (int) 2,y: (str) km}}]')
 
 
 def test_deserialize():
@@ -63,3 +63,9 @@ def test_deserialize():
     assert deserialize(True) == True
     assert deserialize(4.5) == 4.5
     assert deserialize({'a': 1, 'b': 'km', 'c': {'x': 2, 'y': 'km'}}, ClassOuter) == v
+
+    # note on these cases: we can't autodetect types! so we leave dicts
+    assert (deserialize({'x': {'a': 1, 'b': 'km', 'c': {'x': 2, 'y': 'km'}}}) ==
+            {'x': {'a': 1, 'b': 'km', 'c': {'x': 2, 'y': 'km'}}})
+    assert (deserialize([1, 'a', {'a': 1, 'b': 'km', 'c': {'x': 2, 'y': 'km'}}]) ==
+            [1, 'a', {'a': 1, 'b': 'km', 'c': {'x': 2, 'y': 'km'}}])
