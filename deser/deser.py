@@ -18,7 +18,7 @@ def serialize(o):
     elif hasattr(o, '__dict__'):
         return serialize(o.__dict__)
     else:
-        raise Exception("Can't serialize type: %s" % type(o))
+        raise TypeError("Can't serialize type: %s" % type(o))
 
 
 def deserialize(o, type_hint=None):
@@ -38,11 +38,11 @@ def deserialize(o, type_hint=None):
         annotations = spec.annotations
         dict_keys = list(o.keys())
         if constructor_args != dict_keys:
-            raise Exception("Deserialization problem: dict keys (%s) doesn't match constructor argument names (%s)" % (dict_keys, constructor_args))
+            raise TypeError("Deserialization problem: dict keys (%s) doesn't match constructor argument names (%s)" % (dict_keys, constructor_args))
         result = type_hint(**{k: deserialize(v, annotations.get(k)) for k,v in o.items()})
         return result
     else:
-        raise Exception("Can't deserialize type: %s" % type(o))
+        raise TypeError("Can't deserialize type: %s" % type(o))
 
 
 def describe(o):
