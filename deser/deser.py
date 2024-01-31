@@ -39,9 +39,9 @@ def deserialize(o, type_hint=None):
         return [deserialize(it, type_hint) for it in o]
     elif isinstance(o, dict) and type_hint is not None:
         spec = inspect.getfullargspec(type_hint.__init__)
-        constructor_args = list(spec.args[1:])
+        constructor_args = set(spec.args[1:])
         annotations = spec.annotations
-        dict_keys = list(o.keys())
+        dict_keys = set(o.keys())
         if constructor_args != dict_keys:
             raise TypeError("Deserialization problem: dict keys (%s) doesn't match constructor argument names (%s)" % (dict_keys, constructor_args))
         result = type_hint(**{k: deserialize(v, annotations.get(k)) for k,v in o.items()})
