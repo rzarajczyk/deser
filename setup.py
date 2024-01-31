@@ -5,7 +5,7 @@ import time
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-version = '0.0.1'
+version = '0.0.2'
 
 postfix = "" if os.getenv("RELEASE", "0") == "1" else ".dev%s" % round(time.time())
 

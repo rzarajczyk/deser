@@ -34,6 +34,7 @@ def test_serialize():
     v = ClassOuter(1, 'km', ClassInner(2, 'km'))
 
     assert serialize(1) == 1
+    assert serialize(None) == None
     assert serialize('a') == 'a'
     assert serialize(True) == True
     assert serialize(4.5) == 4.5
@@ -46,6 +47,7 @@ def test_describe():
     v = ClassOuter(1, 'km', ClassInner(2, 'km'))
 
     assert describe(1) == '(int) 1'
+    assert describe(None) == '(None)'
     assert describe('a') == '(str) a'
     assert describe(True) == '(bool) True'
     assert describe(4.5) == '(float) 4.5'
@@ -59,6 +61,7 @@ def test_deserialize():
     v = ClassOuter(1, 'km', ClassInner(2, 'km'))
 
     assert deserialize(1) == 1
+    assert deserialize(None) == None
     assert deserialize('a') == 'a'
     assert deserialize(True) == True
     assert deserialize(4.5) == 4.5

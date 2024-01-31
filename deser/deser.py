@@ -1,5 +1,6 @@
 import collections.abc
 import inspect
+from types import NoneType
 
 
 def serialize(o):
@@ -11,6 +12,8 @@ def serialize(o):
         return o
     elif isinstance(o, bool):
         return o
+    elif isinstance(o, NoneType):
+        return None
     elif isinstance(o, collections.abc.Sequence):
         return [serialize(it) for it in o]
     elif isinstance(o, dict):
@@ -30,6 +33,8 @@ def deserialize(o, type_hint=None):
         return o
     elif isinstance(o, bool):
         return o
+    elif isinstance(o, NoneType):
+        return None
     elif isinstance(o, collections.abc.Sequence):
         return [deserialize(it, type_hint) for it in o]
     elif isinstance(o, dict) and type_hint is not None:
@@ -48,7 +53,9 @@ def deserialize(o, type_hint=None):
 
 
 def describe(o):
-    if isinstance(o, int) or isinstance(o, str) or isinstance(o, float) or isinstance(o, bool):
+    if isinstance(o, NoneType):
+        return "(None)"
+    elif isinstance(o, int) or isinstance(o, str) or isinstance(o, float) or isinstance(o, bool):
         return "(%s) %s" % (type(o).__name__, o)
     elif isinstance(o, collections.abc.Sequence):
         return "[%s]" % ",".join([describe(it) for it in o])
