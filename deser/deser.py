@@ -1,4 +1,5 @@
 import collections.abc
+import datetime
 import inspect
 import typing
 
@@ -15,6 +16,8 @@ def validate(ttype) -> bool:
     if ttype == str:
         return True
     if ttype == bool:
+        return True
+    if ttype == datetime.datetime:
         return True
 
     if isinstance(ttype, typing._GenericAlias):
@@ -64,6 +67,8 @@ def serialize(value):
         return value
     elif isinstance(value, bool):
         return value
+    elif isinstance(value, datetime.datetime):
+        return value.isoformat()
     elif isinstance(value, collections.abc.Sequence):
         return [serialize(it) for it in value]
     elif isinstance(value, dict):
@@ -86,6 +91,8 @@ def deserialize(value, ttype):
         return str(value)
     if ttype == bool:
         return bool(value)
+    if ttype == datetime.datetime:
+        return datetime.datetime.fromisoformat(str(value))
 
     if isinstance(ttype, typing._GenericAlias):
         origin = typing.get_origin(ttype)
@@ -108,17 +115,17 @@ def deserialize(value, ttype):
     result = ttype(**{k: deserialize(v, annotations.get(k)) for k, v in value.items()})
     return result
 
-
-def describe(o):
-    if o is None:
-        return "(None)"
-    elif isinstance(o, int) or isinstance(o, str) or isinstance(o, float) or isinstance(o, bool):
-        return "(%s) %s" % (type(o).__name__, o)
-    elif isinstance(o, collections.abc.Sequence):
-        return "[%s]" % ",".join([describe(it) for it in o])
-    elif isinstance(o, dict):
-        return "{%s}" % ",".join(["%s: %s" % (k, describe(v)) for k, v in o.items()])
-    elif hasattr(o, '__dict__'):
-        return "(%s) %s" % (type(o).__name__, describe(o.__dict__))
-    else:
-        return "(%s) %s" % (type(o).__name__, str(o))
+#
+# def describe(o):
+#     if o is None:
+#         return "(None)"
+#     elif isinstance(o, int) or isinstance(o, str) or isinstance(o, float) or isinstance(o, bool):
+#         return "(%s) %s" % (type(o).__name__, o)
+#     elif isinstance(o, collections.abc.Sequence):
+#         return "[%s]" % ",".join([describe(it) for it in o])
+#     elif isinstance(o, dict):
+#         return "{%s}" % ",".join(["%s: %s" % (k, describe(v)) for k, v in o.items()])
+#     elif hasattr(o, '__dict__'):
+#         return "(%s) %s" % (type(o).__name__, describe(o.__dict__))
+#     else:
+#         return "(%s) %s" % (type(o).__name__, str(o))

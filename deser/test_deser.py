@@ -1,6 +1,7 @@
+import datetime
 from typing import List, Dict
 
-from deser import describe, serialize, deserialize, validate
+from deser import serialize, deserialize, validate
 
 
 class ClassInner:
@@ -13,9 +14,6 @@ class ClassInner:
             return self.x == other.x and self.y == other.y
         return False
 
-    def __repr__(self):
-        return describe(self)
-
 
 class ClassOuter:
     def __init__(self, a: float, b: float, c: ClassInner):
@@ -27,9 +25,6 @@ class ClassOuter:
         if isinstance(self, other.__class__):
             return self.a == other.a and self.b == other.b and self.c == other.c
         return False
-
-    def __repr__(self):
-        return describe(self)
 
 
 class ClassWithoutConstructor:
@@ -61,6 +56,7 @@ def test_validate():
     assert validate(str) == True
     assert validate(bool) == True
     assert validate(float) == True
+    assert validate(datetime.datetime) == True
     assert validate(List[int]) == True
     assert validate(List[str]) == True
     assert validate(List[bool]) == True
@@ -78,29 +74,31 @@ def test_validate():
 
 def test_serialize():
     v = ClassOuter(1, 2.0, ClassInner(2, 4))
+    d = datetime.datetime.now()
 
     assert serialize(1) == 1
     assert serialize(None) == None
     assert serialize('a') == 'a'
     assert serialize(True) == True
     assert serialize(4.5) == 4.5
+    assert serialize(d) == d.isoformat()
     assert serialize(v) == {'a': 1, 'b': 2.0, 'c': {'x': 2, 'y': 4}}
     assert serialize({'x': v}) == {'x': {'a': 1, 'b': 2.0, 'c': {'x': 2, 'y': 4}}}
     assert serialize([1, 'a', v]) == [1, 'a', {'a': 1, 'b': 2.0, 'c': {'x': 2, 'y': 4}}]
 
 
-def test_describe():
-    v = ClassOuter(1, 'km', ClassInner(2, 'km'))
-
-    assert describe(1) == '(int) 1'
-    assert describe(None) == '(None)'
-    assert describe('a') == '(str) a'
-    assert describe(True) == '(bool) True'
-    assert describe(4.5) == '(float) 4.5'
-    assert describe(v) == '(ClassOuter) {a: (int) 1,b: (str) km,c: (ClassInner) {x: (int) 2,y: (str) km}}'
-    assert describe({'x': v}) == '{x: (ClassOuter) {a: (int) 1,b: (str) km,c: (ClassInner) {x: (int) 2,y: (str) km}}}'
-    assert (describe([1, 'a', v]) ==
-            '[(int) 1,(str) a,(ClassOuter) {a: (int) 1,b: (str) km,c: (ClassInner) {x: (int) 2,y: (str) km}}]')
+# def test_describe():
+#     v = ClassOuter(1, 'km', ClassInner(2, 'km'))
+#
+#     assert describe(1) == '(int) 1'
+#     assert describe(None) == '(None)'
+#     assert describe('a') == '(str) a'
+#     assert describe(True) == '(bool) True'
+#     assert describe(4.5) == '(float) 4.5'
+#     assert describe(v) == '(ClassOuter) {a: (int) 1,b: (str) km,c: (ClassInner) {x: (int) 2,y: (str) km}}'
+#     assert describe({'x': v}) == '{x: (ClassOuter) {a: (int) 1,b: (str) km,c: (ClassInner) {x: (int) 2,y: (str) km}}}'
+#     assert (describe([1, 'a', v]) ==
+#             '[(int) 1,(str) a,(ClassOuter) {a: (int) 1,b: (str) km,c: (ClassInner) {x: (int) 2,y: (str) km}}]')
 
 
 def test_deserialize():
@@ -111,6 +109,7 @@ def test_deserialize():
     assert deserialize('a', str) == 'a'
     assert deserialize(True, bool) == True
     assert deserialize(4.5, float) == 4.5
+    assert deserialize('2024-02-03T21:25:12.036913', datetime.datetime) == datetime.datetime.fromisoformat('2024-02-03T21:25:12.036913')
     assert deserialize({'a': 1, 'b': 2.0, 'c': {'x': 2, 'y': 4}}, ClassOuter) == v
     assert deserialize([{'a': 1, 'b': 2.0, 'c': {'x': 2, 'y': 4}}], List[ClassOuter]) == [v]
     assert deserialize({'x': {'a': 1, 'b': 2.0, 'c': {'x': 2, 'y': 4}}}, Dict[str, ClassOuter]) == {'x': v}
